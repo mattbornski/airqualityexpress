@@ -15,15 +15,21 @@ Dominant air pollution class: {dominantPollution}
 
 @default_reply
 def quality(message):
+    print('')
+    print('')
+    print('New request for quality at default location')
     message.reply(slackify(scrape.scrape()))
 
 @respond_to('(at|in) (.*)', re.IGNORECASE)
 def qualityAt(message, preposition, location):
+    print('')
+    print('')
+    print('New request for quality at ' + location)
     geoResolver = Nominatim()
     resolvedLocation = geoResolver.geocode(location)
-    # print(resolvedLocation)
+    print(resolvedLocation)
     resolvedAddress = geoResolver.reverse("{lat}, {lon}".format(**resolvedLocation.raw))
-    # print(resolvedAddress.raw)
+    print(resolvedAddress.raw)
 
     message.reply(slackify(scrape.scrape(resolvedAddress.raw['address'])))
 

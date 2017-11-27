@@ -16,11 +16,11 @@ from sendgrid.helpers.mail import Email, Mail, Content
 import us
 
 def urlFromLocality(locality):
-    # print(locality)
+    print(locality)
     if not 'state_code' in locality:
         print(us.states.lookup(locality['state']))
         locality['state_code'] = us.states.lookup(locality['state']).abbr
-    # print(locality)
+    print(locality)
     return SCRAPE_URL.format(**locality)
 
 def scrape(locality=DEFAULT_LOCALITY):
@@ -33,7 +33,7 @@ def scrape(locality=DEFAULT_LOCALITY):
         'city': locality['city'],
     }
     airQualityDiv = soup.find(name='div', class_='content aqi')
-    # print(airQualityDiv.prettify())
+    print(airQualityDiv.prettify())
 
     airQualityIndexDiv = airQualityDiv.find(name='div', string='AQI:').parent
     parsedValues['aqiIndex'] = int(airQualityIndexDiv.find(name='div', class_='aqi-value').string)
@@ -57,7 +57,7 @@ def scrape(locality=DEFAULT_LOCALITY):
     # pollenDiv = soup.find(name='div', class_='region-pollen')
     # print(pollenDiv.prettify())
 
-    # print(parsedValues)
+    print(parsedValues)
 
     return parsedValues
 
