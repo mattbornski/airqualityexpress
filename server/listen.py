@@ -8,7 +8,7 @@ from slackbot.bot import Bot, default_reply, respond_to
 import time
 
 def slackify(parsedValues):
-    textSummary = '''{aqiClassification} air quality in {city}
+    textSummary = '''{aqiClassification} air quality in {city}, {state_code}
 AQI: {aqiIndex}
 Dominant air pollution class: {dominantPollution}
 {dominantPollutionDesc}'''.format(**parsedValues)

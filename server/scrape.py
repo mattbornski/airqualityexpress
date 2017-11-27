@@ -15,15 +15,26 @@ import sendgrid
 from sendgrid.helpers.mail import Email, Mail, Content
 import us
 
-def urlFromLocality(locality):
+def canonicalizeLocality(locality):
     print(locality)
+    if not 'city' in locality:
+        if 'town' in locality:
+            locality['city'] = locality['town']
+        elif 'village' in locality:
+            locality['city'] = locality['village']
+        elif 'hamlet' in locality:
+            locality['city'] = locality['hamlet']
     if not 'state_code' in locality:
         print(us.states.lookup(locality['state']))
         locality['state_code'] = us.states.lookup(locality['state']).abbr
     print(locality)
+    return locality
+
+def urlFromLocality(locality):
     return SCRAPE_URL.format(**locality)
 
 def scrape(locality=DEFAULT_LOCALITY):
+    locality = canonicalizeLocality(locality)
     url = urlFromLocality(locality)
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
@@ -31,6 +42,7 @@ def scrape(locality=DEFAULT_LOCALITY):
     parsedValues = {
         'url': url,
         'city': locality['city'],
+        'state_code': locality['state_code'],
     }
     airQualityDiv = soup.find(name='div', class_='content aqi')
     print(airQualityDiv.prettify())
