@@ -1,1 +1,1 @@
-web: ./server/serve.py
+worker: ./server/listen.py
