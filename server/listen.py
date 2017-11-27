@@ -1,9 +1,11 @@
 #!/usr/bin/env python3.6
 
+import geopy
 from geopy.geocoders import Nominatim
 import re
 import scrape
 from slackbot.bot import Bot, default_reply, respond_to
+import time
 
 def slackify(parsedValues):
     textSummary = '''{aqiClassification} air quality in {city}
@@ -21,17 +23,24 @@ def quality(message):
     message.reply(slackify(scrape.scrape()))
 
 @respond_to('(at|in) (.*)', re.IGNORECASE)
-def qualityAt(message, preposition, location):
+def qualityAt(message, preposition, location, isRetry = False):
     print('')
     print('')
     print('New request for quality at ' + location)
     geoResolver = Nominatim()
-    resolvedLocation = geoResolver.geocode(location)
-    print(resolvedLocation)
-    resolvedAddress = geoResolver.reverse("{lat}, {lon}".format(**resolvedLocation.raw))
-    print(resolvedAddress.raw)
+    try:
+        resolvedLocation = geoResolver.geocode(location + ', United States of America')
+        print(resolvedLocation)
+        resolvedAddress = geoResolver.reverse("{lat}, {lon}".format(**resolvedLocation.raw))
+        print(resolvedAddress.raw)
 
-    message.reply(slackify(scrape.scrape(resolvedAddress.raw['address'])))
+        message.reply(slackify(scrape.scrape(resolvedAddress.raw['address'])))
+    except geopy.exc.GeocoderTimedOut as e:
+        if isRetry:
+            raise e
+        else:
+            time.sleep(3)
+            return qualityAt(message, preposition, location, True)
 
 def serve():
     bot = Bot()
